@@ -1,13 +1,37 @@
+import React, { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { Experience } from "./components/Experience";
+import { OrbitControls } from "@react-three/drei";
+import { Model } from "./Model.jsx";
 
-function App() {
+const Scene = () => {
   return (
-    <Canvas shadows camera={{ position: [3, 3, 3], fov: 30 }}>
-      <color attach="background" args={["#ececec"]} />
-      <Experience />
+    <>
+      <Suspense fallback={null}>
+        <Model />
+      </Suspense>
+      <ambientLight />
+    </>
+  );
+};
+
+const App = () => {
+  return (
+    <Canvas >
+      {/* OrbitControls provides rotation and zoom functionality */}
+      <OrbitControls 
+        enablePan={true} 
+        enableZoom={true} 
+        enableRotate={true} 
+        zoomSpeed={1.0} 
+        rotateSpeed={1.0} 
+        minDistance={5} 
+        maxDistance={100} 
+      />
+      <Scene>
+
+      </Scene>
     </Canvas>
   );
-}
+};
 
 export default App;

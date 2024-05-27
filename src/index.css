@@ -1,8 +1,40 @@
-#root {
-  width: 100vw;
-  height: 100vh;
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  padding: 0;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  display: flex; 
+}
+
+.left-screen {
+  width: 50vw;
+  height: 100vh;
+  background-color: lightblue;
+}
+
+.right-screen {
+  width: 50vw;
+  height: 100vh;
+  background-color: lightcoral;
+}
+
+.model {
+  width: 70vw;
+  height: 100vh;
+}
+
+#block_container
+{
+    text-align:center;
+}
+#bloc1, #bloc2
+{
+    display:inline;
 }
