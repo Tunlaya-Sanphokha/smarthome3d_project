@@ -6,7 +6,7 @@ import { Model } from "./Model.jsx";
 const Scene = () => {
   return (
     <>
-      <Suspense fallback={null}>
+      <Suspense fallback={null} class="model">
         <Model />
       </Suspense>
       <ambientLight />
@@ -16,7 +16,7 @@ const Scene = () => {
 
 const App = () => {
   return (
-    <Canvas >
+    <Canvas>
       {/* OrbitControls provides rotation and zoom functionality */}
       <OrbitControls 
         enablePan={true} 
