@@ -6,7 +6,7 @@ import { Model } from "./Model.jsx";
 const Scene = () => {
   return (
     <>
-      <Suspense fallback={null} class="model">
+      <Suspense fallback={null}>
         <Model />
       </Suspense>
       <ambientLight />
