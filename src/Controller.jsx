@@ -3,7 +3,7 @@ import React, { useState } from "react";
 const Controller = () => {
   const [activeTab, setActiveTab] = useState("LivingRoom");
 
-  const openCity = (cityName) => {
+  const room = (cityName) => {
     setActiveTab(cityName);
   };
 
@@ -12,38 +12,30 @@ const Controller = () => {
       <div className="tab">
         <button
           className={`tablinks ${activeTab === "LivingRoom" ? "active" : ""}`}
-          onClick={() => openCity("LivingRoom")}
+          onClick={() => room("LivingRoom")}
         >
           LivingRoom
         </button>
-        <button
-          className={`tablinks ${activeTab === "BedRooom" ? "active" : ""}`}
-          onClick={() => openCity("BedRooom")}
-        >
-          BedRooom
-        </button>
+
         <button
           className={`tablinks ${activeTab === "BathRoom" ? "active" : ""}`}
-          onClick={() => openCity("BathRoom")}
+          onClick={() => room("BathRoom")}
         >
           BathRoom
         </button>
+
         <button
           className={`tablinks ${activeTab === "OutSide" ? "active" : ""}`}
-          onClick={() => openCity("OutSide")}
+          onClick={() => room("OutSide")}
         >
           OutSide
         </button>
+        
       </div>
 
       <div id="LivingRoom" className={`tabcontent ${activeTab === "LivingRoom" ? "show" : "hide"}`}>
         <h3>LivingRoom</h3>
         <p>London is the capital city of England.</p>
-      </div>
-
-      <div id="BedRooom" className={`tabcontent ${activeTab === "BedRooom" ? "show" : "hide"}`}>
-        <h3>BedRooom</h3>
-        <p>Paris is the capital of France.</p>
       </div>
 
       <div id="BathRoom" className={`tabcontent ${activeTab === "BathRoom" ? "show" : "hide"}`}>
