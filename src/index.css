@@ -8,26 +8,25 @@ body {
 }
 
 #root {
-  width: 100vw;
-  height: 100vh;
-  display: flex; 
+  width: 98vw;
+  height: 95vh;
+  display: flex;
+  border: 2px solid black; /* เพิ่มกรอบสีดำ */
+  padding: 10px; /* เพิ่ม padding รอบ ๆ เนื้อหา */
+  margin: 20px; /* เพิ่ม margin รอบ ๆ กรอบ */
+  border-radius: 10px; /* มุมโค้งมน */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เงา */
+
 }
 
-.left-screen {
-  width: 50vw;
-  height: 100vh;
-  background-color: lightblue;
-}
-
-.right-screen {
-  width: 50vw;
-  height: 100vh;
-  background-color: lightcoral;
-}
-
-.model {
-  width: 70vw;
-  height: 100vh;
+.ui {
+  width: 100%;
+  display: flex;
+  border: 2px solid black; /* เพิ่มกรอบสีดำ */
+  padding: 10px; /* เพิ่ม padding รอบ ๆ เนื้อหา */
+  margin: 20px; /* เพิ่ม margin รอบ ๆ กรอบ */
+  border-radius: 10px; /* มุมโค้งมน */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เงา */
 }
 
 #block_container
@@ -38,3 +37,37 @@ body {
 {
     display:inline;
 }
+
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+  width: 100%; /* กำหนดความกว้าง */
+  height: auto; /* กำหนดความสูงอัตโนมัติ */
+  max-width: 600px; /* กำหนดความกว้างสูงสุด */
+  margin: 20px auto; /* จัดศูนย์แนวนอนพร้อมกับ margin */
+}
+
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: 2;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+.tab button.active {
+  background-color: #ccc;
+}
+
+.tabcontent {
+  display: none;
+}
+
+.tabcontent.show {
+  display: block;
+}
+

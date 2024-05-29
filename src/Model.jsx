@@ -37,7 +37,7 @@ export function Model(props) {
         <group name="AreaLightLiving" position={[6.723, 12.17, -3.627]} scale={1.878}>
           <spotLight
             name="AreaLightLiving_Orientation"
-            intensity={2}
+            intensity={1}
             angle={Math.PI / 3 }
             penumbra={0.15}
             decay={2}
@@ -130,8 +130,6 @@ export function Model(props) {
           <mesh name="BezierCurve015_3" geometry={nodes.BezierCurve015_3.geometry} material={materials.soil} />
         </group>
         <mesh name="plug" geometry={nodes.plug.geometry} material={materials.plug} position={[8.326, 4.467, -9.857]} scale={[0.544, 0.794, 0.286]} />
-        <mesh name="sensorDoorBed" geometry={nodes.sensorDoorBed.geometry} material={materials.doorsensor} position={[-2.23, 8.119, -10.113]} scale={[0.666, 0.243, 0.142]} />
-        <mesh name="sensorDoorBath" geometry={nodes.sensorDoorBath.geometry} material={materials.doorsensor} position={[3.468, 8.112, -10.002]} scale={[0.666, 0.243, 0.142]} />
         <mesh name="sensorDoorLiving" geometry={nodes.sensorDoorLiving.geometry} material={materials.doorsensor} position={[10.746, 8.156, 6.248]} scale={[0.666, 0.243, 0.142]} />
       </group>
     </group>
