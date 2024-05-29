@@ -11,11 +11,11 @@ body {
   width: 98vw;
   height: 95vh;
   display: flex;
-  border: 2px solid black; /* เพิ่มกรอบสีดำ */
-  padding: 10px; /* เพิ่ม padding รอบ ๆ เนื้อหา */
-  margin: 20px; /* เพิ่ม margin รอบ ๆ กรอบ */
-  border-radius: 10px; /* มุมโค้งมน */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เงา */
+  border: 2px solid black; 
+  padding: 10px; 
+  margin: 20px; 
+  border-radius: 10px; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
 
 }
 
@@ -35,11 +35,11 @@ body {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  border: 2px solid black; /* เพิ่มกรอบสีดำ */
-  padding: 10px; /* เพิ่ม padding รอบ ๆ เนื้อหา */
-  margin: 20px; /* เพิ่ม margin รอบ ๆ กรอบ */
-  border-radius: 10px; /* มุมโค้งมน */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เงา */
+  border: 2px solid black;
+  padding: 10px; 
+  margin: 20px; 
+  border-radius: 10px; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
 }
 
 .tab {
@@ -69,14 +69,152 @@ body {
 .tabcontent {
   display: none;
   width: 100%;
+  height: 25%;
   max-width: 600px;
-  border: 1px solid #ccc;
+  border: 1px solid #5e5e5e;
   padding: 10px;
   box-sizing: border-box;
-  margin-top: 10px; /* ให้เนื้อหาห่างจากแท็บ */
+  margin-top: 10px;
+}
+
+.tabcontentDisplay {
+  display: none;
+  width: 100%;
+  height: 50%;
+  max-width: 600px;
+  border: 1px solid #5e5e5e;
+  padding: 10px;
+  box-sizing: border-box;
+  margin-top: 30px;
 }
 
 .tabcontent.show {
   display: block;
+}
+
+.tabcontentDisplay.show {
+  display: block;
+}
+/*--------------------------ButtonOutside---------------------------*/
+.buttonONoutside, .buttonOFFoutside {
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.buttonONoutside {
+  background-color: #4CAF50; 
+}
+
+.buttonOFFoutside {
+  background-color: #af4c53; 
+}
+
+.button:hover {
+  background-color: rgb(254, 249, 249);
+  color: black;
+  border: 2px solid;
+}
+button-container {
+  display: flex;
+  justify-content: center; 
+  gap: 10px;
+  margin-top: 10px;
+  width: 100%; 
+  text-align: center;
+}
+
+/*----------------------------ButtonBath--------------------------------------*/
+.buttonONbath, .buttonOFFbath {
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.buttonONbath {
+  background-color: #4CAF50; 
+}
+
+.buttonOFFbath{
+  background-color: #af4c53; 
+}
+
+.button:hover {
+  background-color: rgb(254, 249, 249);
+  color: black;
+  border: 2px solid;
+}
+
+.button-container {
+  display: flex;
+  justify-content: left;
+  gap: 10px; 
+  margin-top: 10px; 
+}
+
+/*----------------------------ButtonLiving----------------*/
+.buttonONdoor, .buttonOFFdoor {
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.buttonONplug, .buttonOFFplug {
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.buttonONdoor {
+  background-color: #4CAF50; 
+}
+.buttonOFFdoor{
+  background-color: #af4c53; 
+}
+
+.buttonONplug {
+  background-color: #4CAF50; 
+}
+
+.buttonOFFplug {
+  background-color: #af4c53; 
+}
+
+.button:hover {
+  background-color: rgb(254, 249, 249);
+  color: black;
+  border: 2px solid;
+}
+
+.flex{
+  display: flex;
 }
 

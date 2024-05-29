@@ -2,9 +2,14 @@ import React, { useState } from "react";
 
 const Controller = () => {
   const [activeTab, setActiveTab] = useState("LivingRoom");
+  const [selectedDivDoor, setSelectedDivDoor] = useState("");
+  const [selectedDivPlug, setSelectedDivPlug] = useState("");
+  const [selectedDivFan, setSelectedDivFan] = useState("");
+  const [selectedDivWP, setSelectedDivWP] = useState("");
+  const [sensor, setSensor] = useState("");
 
-  const room = (cityName) => {
-    setActiveTab(cityName);
+  const room = (room) => {
+    setActiveTab(room);
   };
 
   return (
@@ -34,19 +39,81 @@ const Controller = () => {
       </div>
 
       <div id="LivingRoom" className={`tabcontent ${activeTab === "LivingRoom" ? "show" : "hide"}`}>
-        <h3>LivingRoom</h3>
-        <p>London is the capital city of England.</p>
+          <table>
+            <tr>
+              <td>
+                <h3>Door lock: </h3>
+              </td>
+              <td>
+                <div className="button-container">
+                  <button className="button buttonONdoor" onClick={() => setSelectedDivDoor("ON")}>ON</button>
+                  <button className="button buttonOFFdoor" onClick={() => setSelectedDivDoor("OFF")}>OFF</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h3>Plug: </h3>
+              </td>
+              <td>
+                <div className="button-container">
+                  <button className="button buttonONplug" onClick={() => setSelectedDivPlug("ON")}>ON</button>
+                  <button className="button buttonOFFplug" onClick={() => setSelectedDivPlug("OFF")}>OFF</button>
+                </div>
+              </td>
+            </tr>
+          </table>
       </div>
 
       <div id="BathRoom" className={`tabcontent ${activeTab === "BathRoom" ? "show" : "hide"}`}>
-        <h3>BathRoom</h3>
-        <p>Tokyo is the capital of Japan.</p>
+        <table>
+          <tr>
+            <td>
+              <h3>Fan: </h3>
+            </td>
+            <td>
+              <div className="button-container">
+                <button className="button buttonONplug" onClick={() => setSelectedDivFan("ON")}>ON</button>
+                <button className="button buttonOFFplug" onClick={() => setSelectedDivFan("OFF")}>OFF</button>
+              </div>
+            </td>
+          </tr>
+        </table>
       </div>
 
       <div id="OutSide" className={`tabcontent ${activeTab === "OutSide" ? "show" : "hide"}`}>
-        <h3>OutSide</h3>
-        <p>Tokyo is the capital of Japan.</p>
+      <table>
+          <tr>
+            <td>
+              <h3>Water pump: </h3>
+            </td>
+            <td>
+              <div className="button-container">
+                <button className="button buttonONplug" onClick={() => setSelectedDivWP("ON")}>ON</button>
+                <button className="button buttonOFFplug" onClick={() => setSelectedDivWP("OFF")}>OFF</button>
+              </div>
+            </td>
+          </tr>
+        </table>
       </div>
+
+      <div id="LivingRoom" className={`tabcontentDisplay ${activeTab === "LivingRoom" ? "show" : "hide"}`}>
+        {<h3>Door lock : {selectedDivDoor}</h3>}
+        {<h3>Plug : {selectedDivPlug}</h3>}
+        {<h3>Sensor : {sensor}</h3>}
+      </div>
+
+      <div id="BathRoom" className={`tabcontentDisplay ${activeTab === "BathRoom" ? "show" : "hide"}`}>
+        {<h3>Fan : {selectedDivFan}</h3>}
+        {<h3>Sensor : {sensor}</h3>}
+      </div>
+
+      <div id="OutSide" className={`tabcontentDisplay ${activeTab === "OutSide" ? "show" : "hide"}`}>
+        {<h3>Water Pump : {selectedDivWP}</h3>}
+        {<h3>Sensor : {sensor}</h3>}
+      </div>
+
+
     </div>
   );
 };
