@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-import { Model } from "./Model.jsx";
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import { Model } from './Model.jsx';
 
 const Scene = () => {
   return (
@@ -10,14 +10,17 @@ const Scene = () => {
         <Model />
       </Suspense>
       <ambientLight />
+      
     </>
   );
 };
 
 const App = () => {
   return (
-    <Canvas>
+    <Canvas camera={{ position: [0, 0, 50], fov: 80 }}>
       {/* OrbitControls provides rotation and zoom functionality */}
+      <ambientLight />
+      <pointLight position={[10, 10, 10]} />
       <OrbitControls 
         enablePan={true} 
         enableZoom={true} 
@@ -28,7 +31,7 @@ const App = () => {
         maxDistance={100} 
       />
       <Scene>
-
+      
       </Scene>
     </Canvas>
   );
