@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Model } from './Model.jsx';
+import mqtt from 'mqtt';
 
 const Controller = () => {
   const [activeTab, setActiveTab] = useState("LivingRoom");
@@ -10,15 +11,130 @@ const Controller = () => {
   const [selectedDivFan, setSelectedDivFan] = useState("");
   const [selectedDivWP, setSelectedDivWP] = useState("");
   const [fanRotation, setFanRotation] = useState(false);
+  //const [sensorDoorLivingColor, setSensorDoorLivingColor] = useState("#ffffff");
+
+  /////////// Livingroom
   const [sensorTemp, setSensorTemp] = useState("");
-  const [sensorDust, setSensorDust] = useState("");
+  const [sensorHumidityLiving, setSensorHumiLiving] = useState("");
+  const [sensorDustPM, setSensorDustPM] = useState("");
+  const [sensorDustPM10, setSensorDustPM10] = useState("");
+  const [sensorDustPM2_5, setSensorDustPM12_5] = useState("");
 
-  const [sensorHumidity, setSensorHumidity] = useState("");
+  /////////Bathroom
+  const [sensorTempBath, setSensorTempBath] = useState("");
+  const [sensorHumiditybath, setSensorHumidityBath] = useState("");
   const [sensorSmoke, setSensorSmoke] = useState("");
-
+  
+  //////// Outside
   const [sensorMoisture, setSensorMoisture] = useState("");
-  const room = (room) => {
-    setActiveTab(room);
+
+  useEffect(() => {
+    const mqttClient = mqtt.connect('wss://broker.hivemq.com:8000/mqtt', {
+      //username: 'homeassistant', 
+      //password: 'de2454reki'  
+    });
+
+    
+    mqttClient.on('connect', () => {
+      console.log('เชื่อมต่อกับ MQTT broker สำเร็จ');
+
+      // Subscribe to topics to receive sensor data
+
+      //--------------Livingroom-----------------
+      mqttClient.subscribe('myhome/groundfloor/livingroom/temp');
+      mqttClient.subscribe('myhome/groundfloor/livingroom/humid');
+      mqttClient.subscribe('myhome/groundfloor/livingroom/PM/1');
+      mqttClient.subscribe('myhome/groundfloor/livingroom/PM/2_5');
+      mqttClient.subscribe('myhome/groundfloor/livingroom/PM/10');
+
+      //---------------Bath---------------------
+      mqttClient.subscribe('myhome/groundfloor/Bathroom/temp');
+      mqttClient.subscribe('myhome/groundfloor/Bathroom/humid');
+      mqttClient.subscribe('myhome/groundfloor/Bathroom/smoke');
+
+      //--------------Outside------------------
+      mqttClient.subscribe('myhome/groundfloor/garden/Moisture');
+    });
+
+    mqttClient.on('message', (topic, message) => {
+      const value = message.toString();
+      switch (topic) {
+        case 'myhome/groundfloor/livingroom/temp':
+          setSensorTemp(value);
+          break;
+        case 'myhome/groundfloor/livingroom/humid':
+          setSensorHumiLiving(value);
+          break;
+        case 'myhome/groundfloor/livingroom/PM/1':
+          setSensorDustPM(value);
+          break;
+        case 'myhome/groundfloor/livingroom/PM/2_5':
+          setSensorDustPM12_5(value);
+          break;
+        case 'myhome/groundfloor/livingroom/PM/10':
+          setSensorDustPM10(value);
+          break;
+        case 'myhome/groundfloor/Bathroom/temp':
+          setSensorTempBath(value);
+          break;
+        case 'myhome/groundfloor/Bathroom/humid':
+          setSensorHumidityBath(value);
+          break;
+        case 'myhome/groundfloor/Bathroom/smoke':
+          setSensorSmoke(value);
+          break;
+        case 'myhome/groundfloor/garden/Moisture':
+          setSensorMoisture(value);
+          break;
+        default:
+          break;
+      }
+    });
+
+    return () => {
+      mqttClient.end();
+    };
+  }, []);
+
+  const publishMQTTMessage = (topic, message) => {
+    const mqttClient = mqtt.connect('wss://broker.hivemq.com:8000/mqtt');
+    mqttClient.on('connect', () => {
+      mqttClient.publish(topic, message, {}, (error) => {
+        if (error) {
+          console.error('การส่งข้อความ MQTT ล้มเหลว:', error);
+        } else {
+          console.log("succesfully connect")
+          console.log(`ส่งข้อความ MQTT ไปที่ ${topic}: ${message}`);
+        }
+        mqttClient.end();
+      });
+    });
+  };
+
+  const handleDoorLock = (state) => {
+    setSelectedDivDoor(state);
+    publishMQTTMessage('livingroom/door', state);
+    //setSensorDoorLivingColor(state === "ON" ? "#00ff00" : "#ff0000");
+  };
+
+  const handlePlug = (state) => {
+    setSelectedDivPlug(state);
+    publishMQTTMessage('livingroom/plug', state);
+  };
+
+  const handleFan = (state) => {
+    setSelectedDivFan(state);
+    setFanRotation(state === "ON");
+    publishMQTTMessage('bathroom/fan', state);
+  };
+
+  const handleWaterPump = (state) => {
+    setSelectedDivWP(state);
+    publishMQTTMessage('outside/waterpump', state);
+  };
+
+  const room = (roomName) => {
+    setActiveTab(roomName);
   };
 
   return (
@@ -27,8 +143,10 @@ const Controller = () => {
         <ambientLight />
         <pointLight position={[10, 10, 10]} />
         <OrbitControls />
-        <Model rotation={[0, Math.PI / 2, 0]}  fanRotation={fanRotation} />
+        <Model rotation={[0, Math.PI / 2, 0]} fanRotation={fanRotation} room={room} />
+        {/*sensorDoorLivingColor={sensorDoorLivingColor}*/}
       </Canvas>
+     
       <div className="ui">
         <div className="tab">
           <button
@@ -37,33 +155,32 @@ const Controller = () => {
           >
             LivingRoom
           </button>
-
           <button
             className={`tablinks ${activeTab === "BathRoom" ? "active" : ""}`}
             onClick={() => room("BathRoom")}
           >
             BathRoom
           </button>
-
           <button
             className={`tablinks ${activeTab === "OutSide" ? "active" : ""}`}
             onClick={() => room("OutSide")}
           >
             OutSide
           </button>
-          
         </div>
 
+
         <div id="LivingRoom" className={`tabcontent ${activeTab === "LivingRoom" ? "show" : "hide"}`}>
-            <table>
+          <table>
+            <tbody>
               <tr>
                 <td>
                   <h3>Door lock: </h3>
                 </td>
                 <td>
                   <div className="button-container">
-                    <button className="button buttonONdoor" onClick={() => setSelectedDivDoor("ON")}>ON</button>
-                    <button className="button buttonOFFdoor" onClick={() => setSelectedDivDoor("OFF")}>OFF</button>
+                    <button className="button buttonONdoor" onClick={() => handleDoorLock("ON")}>ON</button>
+                    <button className="button buttonOFFdoor" onClick={() => handleDoorLock("OFF")}>OFF</button>
                   </div>
                 </td>
               </tr>
@@ -73,64 +190,74 @@ const Controller = () => {
                 </td>
                 <td>
                   <div className="button-container">
-                    <button className="button buttonONplug" onClick={() => setSelectedDivPlug("ON")}>ON</button>
-                    <button className="button buttonOFFplug" onClick={() => setSelectedDivPlug("OFF")}>OFF</button>
+                    <button className="button buttonONplug" onClick={() => handlePlug("ON")}>ON</button>
+                    <button className="button buttonOFFplug" onClick={() => handlePlug("OFF")}>OFF</button>
                   </div>
                 </td>
               </tr>
-            </table>
+            </tbody>
+          </table>
         </div>
 
         <div id="BathRoom" className={`tabcontent ${activeTab === "BathRoom" ? "show" : "hide"}`}>
           <table>
-            <tr>
-              <td>
-                <h3>Fan: </h3>
-              </td>
-              <td>
-                <div className="button-container">
-                  <button className="button buttonONbath" onClick={() => { setSelectedDivFan("ON"); setFanRotation(true); }}>ON</button>
-                  <button className="button buttonOFFbath" onClick={() => { setSelectedDivFan("OFF"); setFanRotation(false); }}>OFF</button>
-                </div>
-              </td>
-            </tr>
+            <tbody>
+              <tr>
+                <td>
+                  <h3>Fan: </h3>
+                </td>
+                <td>
+                  <div className="button-container">
+                    <button className="button buttonONbath" onClick={() => handleFan("ON")}>ON</button>
+                    <button className="button buttonOFFbath" onClick={() => handleFan("OFF")}>OFF</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
           </table>
         </div>
 
         <div id="OutSide" className={`tabcontent ${activeTab === "OutSide" ? "show" : "hide"}`}>
-        <table>
-            <tr>
-              <td>
-                <h3>Water pump: </h3>
-              </td>
-              <td>
-                <div className="button-container">
-                  <button className="button buttonONoutside" onClick={() => setSelectedDivWP("ON")}>ON</button>
-                  <button className="button buttonOFFoutside" onClick={() => setSelectedDivWP("OFF")}>OFF</button>
-                </div>
-              </td>
-            </tr>
+          <table>
+            <tbody>
+              <tr>
+                <td>
+                  <h3>Water pump: </h3>
+                </td>
+                <td>
+                  <div className="button-container">
+                    <button className="button buttonONoutside" onClick={() => handleWaterPump("ON")}>ON</button>
+                    <button className="button buttonOFFoutside" onClick={() => handleWaterPump("OFF")}>OFF</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
           </table>
         </div>
 
         <div id="LivingRoom" className={`tabcontentDisplay ${activeTab === "LivingRoom" ? "show" : "hide"}`}>
-          {<h3>Door lock : {selectedDivDoor}</h3>}
-          {<h3>Plug : {selectedDivPlug}</h3>}
-          {<h3>Temperature  : {sensorTemp}</h3>}
-          {<h3>Dust Sensor : {sensorDust}</h3>}
+          <h3>Door lock : {selectedDivDoor}</h3>
+          <h3>Plug : {selectedDivPlug}</h3>
+          <h3>Temperature  : {sensorTemp}</h3>
+          <h3>Humidity : {sensorHumidityLiving}</h3>
+          <h3>Sensor DustPM : {sensorDustPM}</h3>
+          <h3>Sensor DustPM10 : {sensorDustPM10}</h3>
+          <h3>Sensor DustPM2_5 : {sensorDustPM2_5}</h3>
         </div>
 
         <div id="BathRoom" className={`tabcontentDisplay ${activeTab === "BathRoom" ? "show" : "hide"}`}>
-          {<h3>Fan : {selectedDivFan}</h3>}
-          {<h3>Humidity Sensor : {sensorHumidity}</h3>}
-          {<h3>Smoke Sensor : {sensorSmoke}</h3>}
+          <h3>Fan : {selectedDivFan}</h3>
+          <h3>Temperature : {sensorTempBath}</h3>
+          <h3>Hunidity : {sensorHumiditybath}</h3>
+          <h3>Smoke Sensor : {sensorSmoke}</h3>
         </div>
 
         <div id="OutSide" className={`tabcontentDisplay ${activeTab === "OutSide" ? "show" : "hide"}`}>
-          {<h3>Water Pump : {selectedDivWP}</h3>}
-          {<h3>Moisture Sensor : {sensorMoisture}</h3>}
+          <h3>Water Pump : {selectedDivWP}</h3>
+          <h3>Moisture Sensor : {sensorMoisture}</h3>
         </div>
       </div>
+
     </>
   );
 };

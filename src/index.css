@@ -8,8 +8,8 @@ body {
 }
 
 #root {
-  width: 98vw;
-  height: 95vh;
+  width: 97vw;
+  height: 94vh;
   display: flex;
   border: 2px solid black; 
   padding: 10px; 
@@ -34,7 +34,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  width: 80%;
   border: 2px solid black;
   padding: 10px; 
   margin: 20px; 

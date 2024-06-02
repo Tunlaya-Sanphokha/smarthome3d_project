@@ -2,20 +2,28 @@ import React, { useRef, useState } from 'react';
 import { useGLTF, useAnimations } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 
-export function Model({ fanRotation }) {
+
+
+export function Model({ fanRotation, room }) {
   const group = useRef();
   const { nodes, materials, animations } = useGLTF('/Model.glb');
   const { actions } = useAnimations(animations, group);
+  useGLTF.preload('/Model.glb');
+
   
   // Reference for the fan mesh
   const fanRef = useRef();
+  const sensorDoorLivingRef = useRef();
+
 
   // Use useFrame to rotate the fan
   useFrame(() => {
     if (fanRotation) {
-      fanRef.current.rotation.z += 0.2; // ปรับความเร็วการหมุนตามต้องการ
+      fanRef.current.rotation.z += 0.2; 
     }
   });
+
+
 
   materials.floor.color.set('#36454F');
 
@@ -79,16 +87,12 @@ export function Model({ fanRotation }) {
         <mesh name="lightBed" geometry={nodes.lightBed.geometry} material={materials.lightbulb} position={[-7.999, 11.487, -16.31]} scale={[1.883, 0.999, 1.883]} />
         <mesh name="LightBath" geometry={nodes.LightBath.geometry} material={materials.lightbulb} position={[6.774, 11.487, -16.31]} scale={[1.883, 0.999, 1.883]} />
         <mesh name="lightLiving" geometry={nodes.lightLiving.geometry} material={materials.lightbulb} position={[0.88, 11.487, -3.674]} scale={[1.883, 0.999, 1.883]} />
-        <mesh name="sensorLiving" geometry={nodes.sensorLiving.geometry} material={materials.sensor} position={[8.759, 8.59, -9.795]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 0.405, 0.837]} />
-        <mesh name="sensorBed" geometry={nodes.sensorBed.geometry} material={materials.sensor} position={[-4.581, 9.74, -22.772]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 0.405, 0.837]} />
-        <mesh name="sensorBath" geometry={nodes.sensorBath.geometry} material={materials.sensor} position={[3.439, 9.881, -22.772]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 0.405, 0.837]} />
         <group name="tree1" position={[18.19, 2.591, -9.058]} rotation={[1.334, -0.896, 0.498]}>
           <mesh name="BezierCurve007" geometry={nodes.BezierCurve007.geometry} material={materials.tree} />
           <mesh name="BezierCurve007_1" geometry={nodes.BezierCurve007_1.geometry} material={materials.leaf} />
           <mesh name="BezierCurve007_2" geometry={nodes.BezierCurve007_2.geometry} material={materials.pot} />
           <mesh name="BezierCurve007_3" geometry={nodes.BezierCurve007_3.geometry} material={materials.soil} />
         </group>
-        <mesh name="sensorFarm" geometry={nodes.sensorFarm.geometry} material={materials.sensor} position={[14.366, 8.053, -10.674]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={[1, 0.405, 0.837]} />
         <group name="Cube009" position={[-11.954, 10.509, -6.779]} scale={0.071}>
           <mesh name="Cube032" geometry={nodes.Cube032.geometry} material={materials.kitchen4} />
           <mesh name="Cube032_1" geometry={nodes.Cube032_1.geometry} material={materials.kitchen1} />
@@ -136,10 +140,48 @@ export function Model({ fanRotation }) {
           <mesh name="BezierCurve015_3" geometry={nodes.BezierCurve015_3.geometry} material={materials.soil} />
         </group>
         <mesh name="plug" geometry={nodes.plug.geometry} material={materials.plug} position={[8.326, 4.467, -9.857]} scale={[0.544, 0.794, 0.286]} />
-        <mesh name="sensorDoorLiving" geometry={nodes.sensorDoorLiving.geometry} material={materials.doorsensor} position={[10.746, 8.156, 6.248]} scale={[0.666, 0.243, 0.142]} />
+        <group name="bed" position={[-12.088, 0.736, -17.964]} scale={[4.678, 4.832, 5.123]}>
+          <mesh name="Cube006" geometry={nodes.Cube006.geometry} material={materials.door} />
+          <mesh name="Cube006_1" geometry={nodes.Cube006_1.geometry} material={materials.bed1} />
+          <mesh name="Cube006_2" geometry={nodes.Cube006_2.geometry} material={materials.bed} />
+        </group>
+        <mesh
+          ref={sensorDoorLivingRef}
+          name="sensorDoorLiving"
+          geometry={nodes.sensorDoorLiving.geometry}
+          material={materials.doorsensor}
+          position={[10.746, 8.156, 6.248]}
+          scale={[0.666, 0.243, 0.142]}
+        />
+        <mesh
+          name="sensorLiving"
+          geometry={nodes.sensorLiving.geometry}
+          material={materials.sensor}
+          position={[8.759, 8.59, -9.795]}
+          rotation={[Math.PI / 2, 0, 0]}
+          scale={[1, 0.405, 0.837]}
+          onClick={() => room("LivingRoom")} // click mesh
+        />
+        <mesh
+          name="sensorBath"
+          geometry={nodes.sensorBath.geometry}
+          material={materials.sensor}
+          position={[3.439, 9.881, -22.772]}
+          rotation={[Math.PI / 2, 0, 0]}
+          scale={[1, 0.405, 0.837]}
+          onClick={() => room("BathRoom")} // click mesh
+        />
+        <mesh
+          name="sensorFarm"
+          geometry={nodes.sensorFarm.geometry}
+          material={materials.sensor}
+          position={[14.366, 8.053, -10.674]}
+          rotation={[Math.PI / 2, 0, -Math.PI / 2]}
+          scale={[1, 0.405, 0.837]}
+          onClick={() => room("OutSide")} // click mesh
+        />
       </group>
     </group>
   );
 }
 
-useGLTF.preload('/Model.glb');
