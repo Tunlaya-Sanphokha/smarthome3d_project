@@ -29,7 +29,7 @@ const Controller = () => {
   const [sensorMoisture, setSensorMoisture] = useState("");
 
   useEffect(() => {
-    const mqttClient = mqtt.connect('wss://broker.hivemq.com:8000/mqtt', {
+    const mqttClient = mqtt.connect('ws://broker.hivemq.com:8000/mqtt', {
       //username: 'homeassistant', 
       //password: 'de2454reki'  
     });
@@ -97,7 +97,7 @@ const Controller = () => {
   }, []);
 
   const publishMQTTMessage = (topic, message) => {
-    const mqttClient = mqtt.connect('wss://broker.hivemq.com:8000/mqtt');
+    const mqttClient = mqtt.connect('ws://broker.hivemq.com:8000/mqtt');
     mqttClient.on('connect', () => {
       mqttClient.publish(topic, message, {}, (error) => {
         if (error) {
@@ -113,24 +113,24 @@ const Controller = () => {
 
   const handleDoorLock = (state) => {
     setSelectedDivDoor(state);
-    publishMQTTMessage('livingroom/door', state);
+    publishMQTTMessage('myhome/groundfloor/livingroom/door', state);
     //setSensorDoorLivingColor(state === "ON" ? "#00ff00" : "#ff0000");
   };
 
   const handlePlug = (state) => {
     setSelectedDivPlug(state);
-    publishMQTTMessage('livingroom/plug', state);
+    publishMQTTMessage('myhome/groundfloor/livingroom/plug', state);
   };
 
   const handleFan = (state) => {
     setSelectedDivFan(state);
     setFanRotation(state === "ON");
-    publishMQTTMessage('bathroom/fan', state);
+    publishMQTTMessage('myhome/groundfloor/bathroom/fan', state);
   };
 
   const handleWaterPump = (state) => {
     setSelectedDivWP(state);
-    publishMQTTMessage('outside/waterpump', state);
+    publishMQTTMessage('myhome/groundfloor/garden/waterpump', state);
   };
 
   const room = (roomName) => {
@@ -146,6 +146,7 @@ const Controller = () => {
         <Model rotation={[0, Math.PI / 2, 0]} fanRotation={fanRotation} room={room} />
         {/*sensorDoorLivingColor={sensorDoorLivingColor}*/}
       </Canvas>
+     
      
       <div className="ui">
         <div className="tab">
