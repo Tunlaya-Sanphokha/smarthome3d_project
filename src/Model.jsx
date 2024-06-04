@@ -19,7 +19,7 @@ export function Model({ fanRotation, room }) {
   // Use useFrame to rotate the fan
   useFrame(() => {
     if (fanRotation) {
-      fanRef.current.rotation.z += 0.2; 
+      fanRef.current.rotation.z += 0.4; 
     }
   });
 

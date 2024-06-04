@@ -8,10 +8,9 @@ const Controller = () => {
   const [activeTab, setActiveTab] = useState("LivingRoom");
   const [selectedDivDoor, setSelectedDivDoor] = useState("");
   const [selectedDivPlug, setSelectedDivPlug] = useState("");
-  const [selectedDivFan, setSelectedDivFan] = useState("");
   const [selectedDivWP, setSelectedDivWP] = useState("");
   const [fanRotation, setFanRotation] = useState(false);
-  //const [sensorDoorLivingColor, setSensorDoorLivingColor] = useState("#ffffff");
+  
 
   /////////// Livingroom
   const [sensorTemp, setSensorTemp] = useState("");
@@ -29,6 +28,10 @@ const Controller = () => {
   //////// Outside
   const [sensorMoisture, setSensorMoisture] = useState("");
 
+  ////////displaypopup
+  const [displayPopUp, setDisplayPopup] = useState("");
+  const [showPopup, setShowPopUp] = useState("");
+
   useEffect(() => {
     const mqttClient = mqtt.connect('ws://192.168.143.251:9001/mqtt', {
       username: 'homeassistant', 
@@ -37,7 +40,9 @@ const Controller = () => {
 
     
     mqttClient.on('connect', () => {
-      console.log('เชื่อมต่อกับ MQTT broker สำเร็จ');
+      console.log('MQTT connection success');
+      setDisplayPopup('MQTT connection success')
+      setShowPopUp("success");
 
       // Subscribe to topics to receive sensor data
 
@@ -106,13 +111,22 @@ const Controller = () => {
     mqttClient.on('connect', () => {
       mqttClient.publish(topic, message, {}, (error) => {
         if (error) {
-          console.error('การส่งข้อความ MQTT ล้มเหลว:', error);
+          console.error('MQTT message sending failed:', error);
+          setDisplayPopup("MQTT message sending failed:" + error)
+          setShowPopUp("alert");
         } else {
           console.log("succesfully connect")
-          console.log(`ส่งข้อความ MQTT ไปที่ ${topic}: ${message}`);
+          console.log(`Send MQTT message to ${topic}: ${message}`);
         }
         mqttClient.end();
       });
+    });
+
+    mqttClient.on('error', (error) => {
+      console.error('MQTT connection error:', error);
+      setDisplayPopup("MQTT connection error");
+      setShowPopUp("alert");
+      mqttClient.end();
     });
     
   };
@@ -120,7 +134,7 @@ const Controller = () => {
   const handleDoorLock = (state) => {
     setSelectedDivDoor(state);
     publishMQTTMessage('myhome/groundfloor/livingroom/door', state);
-    //setSensorDoorLivingColor(state === "ON" ? "#00ff00" : "#ff0000");
+
   };
 
   const handlePlug = (state) => {
@@ -143,6 +157,11 @@ const Controller = () => {
     setActiveTab(roomName);
   };
 
+
+  const showPopUp = (showPopUp) => {
+    setShowPopUp(showPopUp);
+  };
+
   return (
     <>
       <Canvas camera={{ position: [0, 0, 50], fov: 80 }}>
@@ -150,11 +169,23 @@ const Controller = () => {
         <pointLight position={[10, 10, 10]} />
         <OrbitControls />
         <Model rotation={[0, Math.PI / 2, 0]} fanRotation={fanRotation} room={room} />
-        {/*sensorDoorLivingColor={sensorDoorLivingColor}*/}
+        
       </Canvas>
      
-     
       <div className="ui">
+        
+        <div className ={`${showPopup === "alert" ? "alert" : "none"}`}>
+          {displayPopUp}
+          <span className = {`${showPopup}`} 
+          onClick={() => showPopUp("none")}>&times;</span> 
+        </div>
+
+        <div className ={`${showPopup === "success" ? "success" : "none"}`}>
+          {displayPopUp}
+          <span className = {`${showPopup}`} 
+          onClick={() => showPopUp("none")}>&times;</span> 
+        </div>
+
         <div className="tab">
           <button
             className={`tablinks ${activeTab === "LivingRoom" ? "active" : ""}`}
