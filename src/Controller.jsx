@@ -24,14 +24,15 @@ const Controller = () => {
   const [sensorTempBath, setSensorTempBath] = useState("");
   const [sensorHumiditybath, setSensorHumidityBath] = useState("");
   const [sensorSmoke, setSensorSmoke] = useState("");
+  const [fanValue, setFanValue] = useState("");
   
   //////// Outside
   const [sensorMoisture, setSensorMoisture] = useState("");
 
   useEffect(() => {
-    const mqttClient = mqtt.connect('ws://broker.hivemq.com:8000/mqtt', {
-      //username: 'homeassistant', 
-      //password: 'de2454reki'  
+    const mqttClient = mqtt.connect('ws://192.168.143.251:9001/mqtt', {
+      username: 'homeassistant', 
+      password: 'de2454reki'  
     });
 
     
@@ -51,38 +52,42 @@ const Controller = () => {
       mqttClient.subscribe('myhome/groundfloor/Bathroom/temp');
       mqttClient.subscribe('myhome/groundfloor/Bathroom/humid');
       mqttClient.subscribe('myhome/groundfloor/Bathroom/smoke');
+      mqttClient.subscribe('myhome/groundfloor/Bathroom/fan');
 
       //--------------Outside------------------
       mqttClient.subscribe('myhome/groundfloor/garden/Moisture');
     });
 
     mqttClient.on('message', (topic, message) => {
-      const value = message.toString();
+      const value = JSON.parse(message.toString());
       switch (topic) {
         case 'myhome/groundfloor/livingroom/temp':
-          setSensorTemp(value);
+          setSensorTemp(value.LR_TEMP);
           break;
         case 'myhome/groundfloor/livingroom/humid':
-          setSensorHumiLiving(value);
+          setSensorHumiLiving(value.LR_HUMID);
           break;
         case 'myhome/groundfloor/livingroom/PM/1':
-          setSensorDustPM(value);
+          setSensorDustPM(value.PM10m);
           break;
         case 'myhome/groundfloor/livingroom/PM/2_5':
-          setSensorDustPM12_5(value);
+          setSensorDustPM12_5(value.PM25m);
           break;
         case 'myhome/groundfloor/livingroom/PM/10':
-          setSensorDustPM10(value);
+          setSensorDustPM10(value.PM100m);
           break;
         case 'myhome/groundfloor/Bathroom/temp':
-          setSensorTempBath(value);
+          setSensorTempBath(value.BR_TEMP);
           break;
         case 'myhome/groundfloor/Bathroom/humid':
-          setSensorHumidityBath(value);
+          setSensorHumidityBath(value.BR_HUMID);
           break;
         case 'myhome/groundfloor/Bathroom/smoke':
-          setSensorSmoke(value);
+          setSensorSmoke(value.BR_MQ2);
           break;
+        case 'myhome/groundfloor/Bathroom/fan':
+          setFanValue(value.BR_FAN);
+          break;       
         case 'myhome/groundfloor/garden/Moisture':
           setSensorMoisture(value);
           break;
@@ -97,7 +102,7 @@ const Controller = () => {
   }, []);
 
   const publishMQTTMessage = (topic, message) => {
-    const mqttClient = mqtt.connect('ws://broker.hivemq.com:8000/mqtt');
+    const mqttClient = mqtt.connect('ws://192.168.143.251:9001/mqtt');
     mqttClient.on('connect', () => {
       mqttClient.publish(topic, message, {}, (error) => {
         if (error) {
@@ -109,6 +114,7 @@ const Controller = () => {
         mqttClient.end();
       });
     });
+    
   };
 
   const handleDoorLock = (state) => {
@@ -123,7 +129,7 @@ const Controller = () => {
   };
 
   const handleFan = (state) => {
-    setSelectedDivFan(state);
+    setFanValue(state);
     setFanRotation(state === "ON");
     publishMQTTMessage('myhome/groundfloor/bathroom/fan', state);
   };
@@ -247,7 +253,7 @@ const Controller = () => {
         </div>
 
         <div id="BathRoom" className={`tabcontentDisplay ${activeTab === "BathRoom" ? "show" : "hide"}`}>
-          <h3>Fan : {selectedDivFan}</h3>
+          <h3>Fan : {fanValue}</h3>
           <h3>Temperature : {sensorTempBath}</h3>
           <h3>Hunidity : {sensorHumiditybath}</h3>
           <h3>Smoke Sensor : {sensorSmoke}</h3>
