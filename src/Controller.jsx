@@ -10,8 +10,9 @@ const Controller = () => {
   const [selectedDivPlug, setSelectedDivPlug] = useState("");
   const [selectedDivWP, setSelectedDivWP] = useState("");
   const [fanRotation, setFanRotation] = useState(false);
-  
 
+  const [selectedDivPlug1, setSelectedDivPlug1] = useState("");
+  
   /////////// Livingroom
   const [sensorTemp, setSensorTemp] = useState("");
   const [sensorHumidityLiving, setSensorHumiLiving] = useState("");
@@ -33,33 +34,27 @@ const Controller = () => {
   const [showPopup, setShowPopUp] = useState("");
 
   useEffect(() => {
-    const mqttClient = mqtt.connect('ws://192.168.143.251:9001/mqtt', {
+    //const mqttClient = mqtt.connect('ws://broker.hivemq.com:8000/mqtt', {
+    const mqttClient = mqtt.connect('ws://192.168.192.251:9001/mqtt', {
       username: 'homeassistant', 
       password: 'de2454reki'  
     });
 
-    
     mqttClient.on('connect', () => {
       console.log('MQTT connection success');
-      setDisplayPopup('MQTT connection success')
+      setDisplayPopup('MQTT connection success');
       setShowPopUp("success");
-
+    
       // Subscribe to topics to receive sensor data
-
-      //--------------Livingroom-----------------
       mqttClient.subscribe('myhome/groundfloor/livingroom/temp');
       mqttClient.subscribe('myhome/groundfloor/livingroom/humid');
       mqttClient.subscribe('myhome/groundfloor/livingroom/PM/1');
       mqttClient.subscribe('myhome/groundfloor/livingroom/PM/2_5');
       mqttClient.subscribe('myhome/groundfloor/livingroom/PM/10');
-
-      //---------------Bath---------------------
       mqttClient.subscribe('myhome/groundfloor/Bathroom/temp');
       mqttClient.subscribe('myhome/groundfloor/Bathroom/humid');
       mqttClient.subscribe('myhome/groundfloor/Bathroom/smoke');
       mqttClient.subscribe('myhome/groundfloor/Bathroom/fan');
-
-      //--------------Outside------------------
       mqttClient.subscribe('myhome/groundfloor/garden/Moisture');
     });
 
@@ -94,7 +89,7 @@ const Controller = () => {
           setFanValue(value.BR_FAN);
           break;       
         case 'myhome/groundfloor/garden/Moisture':
-          setSensorMoisture(value);
+          setSensorMoisture(value.Soil_Moisture);
           break;
         default:
           break;
@@ -107,16 +102,29 @@ const Controller = () => {
   }, []);
 
   const publishMQTTMessage = (topic, message) => {
-    const mqttClient = mqtt.connect('ws://192.168.143.251:9001/mqtt');
+    //const mqttClient = mqtt.connect('ws://broker.hivemq.com:8000/mqtt', {
+    const mqttClient = mqtt.connect('ws://192.168.192.251:9001/mqtt', {
+      username: 'homeassistant', 
+      password: 'de2454reki'  
+    });
+
+    const connectionTimeout = setTimeout(() => {
+      console.warn('MQTT connection Time Out');
+      setDisplayPopup("MQTT connection time out");
+      setShowPopUp("timeout");
+      mqttClient.end();
+    }, 10000);
+
     mqttClient.on('connect', () => {
+      clearTimeout(connectionTimeout);
       mqttClient.publish(topic, message, {}, (error) => {
         if (error) {
           console.error('MQTT message sending failed:', error);
-          setDisplayPopup("MQTT message sending failed:" + error)
+          setDisplayPopup("MQTT message sending failed:" + error);
           setShowPopUp("alert");
         } else {
-          console.log("succesfully connect")
-          console.log(`Send MQTT message to ${topic}: ${message}`);
+          console.log("Successfully connected");
+          console.log(`Sent MQTT message to ${topic}: ${message}`);
         }
         mqttClient.end();
       });
@@ -128,18 +136,22 @@ const Controller = () => {
       setShowPopUp("alert");
       mqttClient.end();
     });
-    
+
   };
 
   const handleDoorLock = (state) => {
     setSelectedDivDoor(state);
     publishMQTTMessage('myhome/groundfloor/livingroom/door', state);
-
   };
 
   const handlePlug = (state) => {
     setSelectedDivPlug(state);
-    publishMQTTMessage('myhome/groundfloor/livingroom/plug', state);
+    publishMQTTMessage('myhome/groundfloor/livingroom/plug2', state);
+  };
+
+  const handlePlug1 = (state) => {
+    setSelectedDivPlug1(state);
+    publishMQTTMessage('myhome/groundfloor/livingroom/plug1', state);
   };
 
   const handleFan = (state) => {
@@ -157,7 +169,6 @@ const Controller = () => {
     setActiveTab(roomName);
   };
 
-
   const showPopUp = (showPopUp) => {
     setShowPopUp(showPopUp);
   };
@@ -169,7 +180,6 @@ const Controller = () => {
         <pointLight position={[10, 10, 10]} />
         <OrbitControls />
         <Model rotation={[0, Math.PI / 2, 0]} fanRotation={fanRotation} room={room} />
-        
       </Canvas>
      
       <div className="ui">
@@ -186,6 +196,12 @@ const Controller = () => {
           onClick={() => showPopUp("none")}>&times;</span> 
         </div>
 
+        <div className ={`${showPopup === "timeout" ? "timeout" : "none"}`}>
+          {displayPopUp}
+          <span className = {`${showPopup}`} 
+          onClick={() => showPopUp("none")}>&times;</span> 
+        </div>
+
         <div className="tab">
           <button
             className={`tablinks ${activeTab === "LivingRoom" ? "active" : ""}`}
@@ -193,6 +209,14 @@ const Controller = () => {
           >
             LivingRoom
           </button>
+
+          <button
+            className={`tablinks ${activeTab === "DoorLock" ? "active" : ""}`}
+            onClick={() => room("DoorLock")}
+          >
+            DoorLock
+          </button>
+          
           <button
             className={`tablinks ${activeTab === "BathRoom" ? "active" : ""}`}
             onClick={() => room("BathRoom")}
@@ -207,18 +231,17 @@ const Controller = () => {
           </button>
         </div>
 
-
         <div id="LivingRoom" className={`tabcontent ${activeTab === "LivingRoom" ? "show" : "hide"}`}>
           <table>
             <tbody>
               <tr>
                 <td>
-                  <h3>Door lock: </h3>
+                  <h3>Plug1: </h3>
                 </td>
                 <td>
                   <div className="button-container">
-                    <button className="button buttonONdoor" onClick={() => handleDoorLock("ON")}>ON</button>
-                    <button className="button buttonOFFdoor" onClick={() => handleDoorLock("OFF")}>OFF</button>
+                    <button className="button buttonONplug1" onClick={() => handlePlug1("ON")}>ON</button>
+                    <button className="button buttonOFFplug1" onClick={() => handlePlug1("OFF")}>OFF</button>
                   </div>
                 </td>
               </tr>
@@ -237,6 +260,25 @@ const Controller = () => {
           </table>
         </div>
 
+        <div id="DoorLock" className={`tabcontent ${activeTab === "DoorLock" ? "show" : "hide"}`}>
+          <table>
+            <tbody>
+              <tr>
+                <td>
+                  <h3>DoorLock </h3>
+                </td>
+                <td>
+                  <div className="button-container">
+                    <button className="button buttonONdoor" onClick={() => handleDoorLock("ON")}>ON</button>
+                    <button className="button buttonOFFdoor" onClick={() => handleDoorLock("OFF")}>OFF</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        
         <div id="BathRoom" className={`tabcontent ${activeTab === "BathRoom" ? "show" : "hide"}`}>
           <table>
             <tbody>
@@ -274,13 +316,17 @@ const Controller = () => {
         </div>
 
         <div id="LivingRoom" className={`tabcontentDisplay ${activeTab === "LivingRoom" ? "show" : "hide"}`}>
-          <h3>Door lock : {selectedDivDoor}</h3>
-          <h3>Plug : {selectedDivPlug}</h3>
+          <h3>Plug1 : {selectedDivPlug1}</h3>
+          <h3>Plug2 : {selectedDivPlug}</h3>
           <h3>Temperature  : {sensorTemp}</h3>
           <h3>Humidity : {sensorHumidityLiving}</h3>
           <h3>Sensor DustPM : {sensorDustPM}</h3>
           <h3>Sensor DustPM10 : {sensorDustPM10}</h3>
           <h3>Sensor DustPM2_5 : {sensorDustPM2_5}</h3>
+        </div>
+
+        <div id="Doorlock" className={`tabcontentDisplay ${activeTab === "DoorLock" ? "show" : "hide"}`}>
+          <h3>Door lock : {selectedDivDoor}</h3>
         </div>
 
         <div id="BathRoom" className={`tabcontentDisplay ${activeTab === "BathRoom" ? "show" : "hide"}`}>
@@ -292,10 +338,10 @@ const Controller = () => {
 
         <div id="OutSide" className={`tabcontentDisplay ${activeTab === "OutSide" ? "show" : "hide"}`}>
           <h3>Water Pump : {selectedDivWP}</h3>
+          {/* Ensure sensorMoisture is rendered correctly */}
           <h3>Moisture Sensor : {sensorMoisture}</h3>
         </div>
       </div>
-
     </>
   );
 };

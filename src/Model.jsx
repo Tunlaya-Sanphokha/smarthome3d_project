@@ -146,22 +146,22 @@ export function Model({ fanRotation, room }) {
           <mesh name="Cube006_2" geometry={nodes.Cube006_2.geometry} material={materials.bed} />
         </group>
 
-        <mesh
+        {/*<mesh
           ref={sensorDoorLivingRef}
           name="sensorDoorLiving"
           geometry={nodes.sensorDoorLiving.geometry}
           material={materials.doorsensor}
           position={[10.746, 8.156, 6.248]}
           scale={[0.666, 0.243, 0.142]}
-        />
-        {/*<mesh
-          name="plug"
-          geometry={nodes.plug.geometry}
-          material={materials.plug}
-          position={[8.326, 4.467, -9.857]}
-          scale={[0.544, 0.794, 0.286]}
-          onClick={() => room("LivingRoom")} // Add this line
         />*/}
+        <mesh
+          name="sensorDoorLiving"
+          geometry={nodes.sensorDoorLiving.geometry}
+          material={materials.doorsensor}
+          position={[10.746, 8.156, 6.248]}
+          scale={[0.666, 0.243, 0.142]}
+          onClick={() => room("DoorLock")} // Add this line
+        />
         <mesh
           name="sensorLiving"
           geometry={nodes.sensorLiving.geometry}

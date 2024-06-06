@@ -230,6 +230,12 @@ button-container {
   color: white;
 }
 
+.timeout {
+  padding: 4px;
+  background-color: #f42c2c;
+  color: white;
+}
+
 .closebtn {                            
   margin-left: 15px;
   color: white;
@@ -247,4 +253,36 @@ button-container {
 
 .none{
   display: none;
+}
+
+/*------------------------Plug1----------------------*/
+.buttonONplug1, .buttonOFFplug1 {
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.buttonONplug1 {
+  background-color: #4CAF50; 
+}
+
+.buttonOFFplug1 {
+  background-color: #af4c53; 
+}
+
+.button:hover {
+  background-color: rgb(254, 249, 249);
+  color: black;
+  border: 2px solid;
+}
+
+.flex{
+  display: flex;
 }
