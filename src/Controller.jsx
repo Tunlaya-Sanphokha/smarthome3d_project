@@ -4,63 +4,83 @@ import { OrbitControls } from '@react-three/drei';
 import { Model } from './Model.jsx';
 import mqtt from 'mqtt';
 
+
+
 const Controller = () => {
   const [activeTab, setActiveTab] = useState("LivingRoom");
-  const [selectedDivDoor, setSelectedDivDoor] = useState("");
-  const [selectedDivPlug, setSelectedDivPlug] = useState("");
-  const [selectedDivWP, setSelectedDivWP] = useState("");
+  const [selectedDivDoor, setSelectedDivDoor] = useState("OFF");
+  const [selectedDivPlug1, setSelectedDivPlug1] = useState("OFF");
+  const [selectedDivPlug2, setSelectedDivPlug2] = useState("OFF");
+  const [selectedDivWP, setSelectedDivWP] = useState("OFF");
+  const [fanValue, setFanValue] = useState("OFF");
   const [fanRotation, setFanRotation] = useState(false);
 
-  const [selectedDivPlug1, setSelectedDivPlug1] = useState("");
   
   /////////// Livingroom
-  const [sensorTemp, setSensorTemp] = useState("");
-  const [sensorHumidityLiving, setSensorHumiLiving] = useState("");
-  const [sensorDustPM, setSensorDustPM] = useState("");
-  const [sensorDustPM10, setSensorDustPM10] = useState("");
-  const [sensorDustPM2_5, setSensorDustPM12_5] = useState("");
+  const [sensorTemp, setSensorTemp] = useState("0");
+  const [sensorHumidityLiving, setSensorHumiLiving] = useState("0");
+  const [sensorDustPM, setSensorDustPM] = useState("0");
+  const [sensorDustPM10, setSensorDustPM10] = useState("0");
+  const [sensorDustPM2_5, setSensorDustPM12_5] = useState("0");
 
   /////////Bathroom
-  const [sensorTempBath, setSensorTempBath] = useState("");
-  const [sensorHumiditybath, setSensorHumidityBath] = useState("");
-  const [sensorSmoke, setSensorSmoke] = useState("");
-  const [fanValue, setFanValue] = useState("");
+  const [sensorTempBath, setSensorTempBath] = useState("0");
+  const [sensorHumiditybath, setSensorHumidityBath] = useState("0");
+  const [sensorSmoke, setSensorSmoke] = useState("0");
   
   //////// Outside
-  const [sensorMoisture, setSensorMoisture] = useState("");
+  const [sensorMoisture, setSensorMoisture] = useState("0");
 
   ////////displaypopup
   const [displayPopUp, setDisplayPopup] = useState("");
   const [showPopup, setShowPopUp] = useState("");
 
   useEffect(() => {
-    //const mqttClient = mqtt.connect('ws://broker.hivemq.com:8000/mqtt', {
     const mqttClient = mqtt.connect('ws://192.168.192.251:9001/mqtt', {
       username: 'homeassistant', 
       password: 'de2454reki'  
     });
 
+    
     mqttClient.on('connect', () => {
       console.log('MQTT connection success');
       setDisplayPopup('MQTT connection success');
       setShowPopUp("success");
-    
+
       // Subscribe to topics to receive sensor data
-      mqttClient.subscribe('myhome/groundfloor/livingroom/temp');
+
+      //--------------Livingroom-----------------
+      mqttClient.subscribe('myhome/groundfloor/livingroom/Door');
+      mqttClient.subscribe('myhome/groundfloor/livingroom/Plug1');
+      mqttClient.subscribe('myhome/groundfloor/livingroom/Plug2');
       mqttClient.subscribe('myhome/groundfloor/livingroom/humid');
       mqttClient.subscribe('myhome/groundfloor/livingroom/PM/1');
       mqttClient.subscribe('myhome/groundfloor/livingroom/PM/2_5');
       mqttClient.subscribe('myhome/groundfloor/livingroom/PM/10');
+
+      //---------------Bath---------------------
       mqttClient.subscribe('myhome/groundfloor/Bathroom/temp');
       mqttClient.subscribe('myhome/groundfloor/Bathroom/humid');
       mqttClient.subscribe('myhome/groundfloor/Bathroom/smoke');
       mqttClient.subscribe('myhome/groundfloor/Bathroom/fan');
+
+      //--------------Outside------------------
       mqttClient.subscribe('myhome/groundfloor/garden/Moisture');
+      mqttClient.subscribe('myhome/groundfloor/garden/Mrelay');
     });
 
     mqttClient.on('message', (topic, message) => {
       const value = JSON.parse(message.toString());
       switch (topic) {
+        case 'myhome/groundfloor/livingroom/Door':
+          setSelectedDivDoor(value.Door_Relay);
+          break;
+        case 'myhome/groundfloor/livingroom/Plug1':
+          setSelectedDivPlug1(value.PLUG1);
+          break;
+        case 'myhome/groundfloor/livingroom/Plug2':
+          setSelectedDivPlug2(value.PLUG2);
+          break;  
         case 'myhome/groundfloor/livingroom/temp':
           setSensorTemp(value.LR_TEMP);
           break;
@@ -89,7 +109,12 @@ const Controller = () => {
           setFanValue(value.BR_FAN);
           break;       
         case 'myhome/groundfloor/garden/Moisture':
+          // Assuming value is an object, you can convert it to string for display
           setSensorMoisture(value.Soil_Moisture);
+          break;
+        case 'myhome/groundfloor/garden/Mrelay':
+          // Assuming value is an object, you can convert it to string for display
+          setSelectedDivWP(value.M_Relay);
           break;
         default:
           break;
@@ -102,11 +127,7 @@ const Controller = () => {
   }, []);
 
   const publishMQTTMessage = (topic, message) => {
-    //const mqttClient = mqtt.connect('ws://broker.hivemq.com:8000/mqtt', {
-    const mqttClient = mqtt.connect('ws://192.168.192.251:9001/mqtt', {
-      username: 'homeassistant', 
-      password: 'de2454reki'  
-    });
+    const mqttClient = mqtt.connect('ws://192.168.192.251:9001/mqtt');
 
     const connectionTimeout = setTimeout(() => {
       console.warn('MQTT connection Time Out');
@@ -123,8 +144,8 @@ const Controller = () => {
           setDisplayPopup("MQTT message sending failed:" + error);
           setShowPopUp("alert");
         } else {
-          console.log("Successfully connected");
-          console.log(`Sent MQTT message to ${topic}: ${message}`);
+          console.log("succesfully connect");
+          console.log(`Send MQTT message to ${topic}: ${message}`);
         }
         mqttClient.end();
       });
@@ -136,7 +157,6 @@ const Controller = () => {
       setShowPopUp("alert");
       mqttClient.end();
     });
-
   };
 
   const handleDoorLock = (state) => {
@@ -144,15 +164,16 @@ const Controller = () => {
     publishMQTTMessage('myhome/groundfloor/livingroom/door', state);
   };
 
-  const handlePlug = (state) => {
-    setSelectedDivPlug(state);
-    publishMQTTMessage('myhome/groundfloor/livingroom/plug2', state);
-  };
-
   const handlePlug1 = (state) => {
     setSelectedDivPlug1(state);
     publishMQTTMessage('myhome/groundfloor/livingroom/plug1', state);
   };
+
+  const handlePlug2 = (state) => {
+    setSelectedDivPlug2(state);
+    publishMQTTMessage('myhome/groundfloor/livingroom/plug2', state);
+  };
+
 
   const handleFan = (state) => {
     setFanValue(state);
@@ -162,7 +183,7 @@ const Controller = () => {
 
   const handleWaterPump = (state) => {
     setSelectedDivWP(state);
-    publishMQTTMessage('myhome/groundfloor/garden/waterpump', state);
+    publishMQTTMessage('myhome/groundfloor/garden/mrelay', state);
   };
 
   const room = (roomName) => {
@@ -251,8 +272,8 @@ const Controller = () => {
                 </td>
                 <td>
                   <div className="button-container">
-                    <button className="button buttonONplug" onClick={() => handlePlug("ON")}>ON</button>
-                    <button className="button buttonOFFplug" onClick={() => handlePlug("OFF")}>OFF</button>
+                    <button className="button buttonONplug" onClick={() => handlePlug2("ON")}>ON</button>
+                    <button className="button buttonOFFplug" onClick={() => handlePlug2("OFF")}>OFF</button>
                   </div>
                 </td>
               </tr>
@@ -317,12 +338,13 @@ const Controller = () => {
 
         <div id="LivingRoom" className={`tabcontentDisplay ${activeTab === "LivingRoom" ? "show" : "hide"}`}>
           <h3>Plug1 : {selectedDivPlug1}</h3>
-          <h3>Plug2 : {selectedDivPlug}</h3>
-          <h3>Temperature  : {sensorTemp}</h3>
-          <h3>Humidity : {sensorHumidityLiving}</h3>
-          <h3>Sensor DustPM : {sensorDustPM}</h3>
-          <h3>Sensor DustPM10 : {sensorDustPM10}</h3>
-          <h3>Sensor DustPM2_5 : {sensorDustPM2_5}</h3>
+          <h3>Plug2 : {selectedDivPlug2}</h3>
+          <h3>Temperature  : {sensorTemp} C</h3>
+          <h3>Humidity : {sensorHumidityLiving} %</h3>
+          <h3>Sensor DustPM1 : {sensorDustPM}  µg/m³</h3>
+          <h3>Sensor DustPM2.5 : {sensorDustPM2_5}  µg/m³</h3>
+          <h3>Sensor DustPM10 : {sensorDustPM10}  µg/m³</h3>
+
         </div>
 
         <div id="Doorlock" className={`tabcontentDisplay ${activeTab === "DoorLock" ? "show" : "hide"}`}>
@@ -331,17 +353,18 @@ const Controller = () => {
 
         <div id="BathRoom" className={`tabcontentDisplay ${activeTab === "BathRoom" ? "show" : "hide"}`}>
           <h3>Fan : {fanValue}</h3>
-          <h3>Temperature : {sensorTempBath}</h3>
-          <h3>Hunidity : {sensorHumiditybath}</h3>
-          <h3>Smoke Sensor : {sensorSmoke}</h3>
+          <h3>Temperature : {sensorTempBath} C</h3>
+          <h3>Hunidity : {sensorHumiditybath} %</h3>
+          <h3>Smoke Sensor : {sensorSmoke} %</h3>
         </div>
 
         <div id="OutSide" className={`tabcontentDisplay ${activeTab === "OutSide" ? "show" : "hide"}`}>
           <h3>Water Pump : {selectedDivWP}</h3>
           {/* Ensure sensorMoisture is rendered correctly */}
-          <h3>Moisture Sensor : {sensorMoisture}</h3>
+          <h3>Moisture Sensor : {sensorMoisture} %</h3>
         </div>
       </div>
+
     </>
   );
 };
